@@ -4,10 +4,8 @@ import { useAuth } from "../context/AuthContext";
 
 const navItems = [
   { to: "/dashboard", icon: "🏠", label: "Dashboard" },
-  { to: "/students",  icon: "🎓", label: "Students" },
-  // future:
-  // { to: "/courses",   icon: "📚", label: "Courses" },
-  // { to: "/grades",    icon: "📊", label: "Grades" },
+  { to: "/students",  icon: "🎓", label: "Students"  },
+  { to: "/courses",   icon: "📚", label: "Courses"   },
 ];
 
 const Layout = ({ children }) => {
@@ -19,7 +17,6 @@ const Layout = ({ children }) => {
 
   return (
     <div className={`layout ${collapsed ? "layout--collapsed" : ""}`}>
-      {/* ── Sidebar ── */}
       <aside className="sidebar">
         <div className="sidebar-header">
           <span className="sidebar-logo">🎓</span>
@@ -27,16 +24,14 @@ const Layout = ({ children }) => {
         </div>
 
         <nav className="sidebar-nav">
+          {!collapsed && <div className="sidebar-section-label">Main Menu</div>}
           {navItems.map(item => (
-            <NavLink
-              key={item.to}
-              to={item.to}
+            <NavLink key={item.to} to={item.to}
               className={({ isActive }) =>
                 `sidebar-link ${isActive ? "sidebar-link--active" : ""}`
-              }
-            >
+              }>
               <span className="sidebar-icon">{item.icon}</span>
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && <span className="nav-label">{item.label}</span>}
             </NavLink>
           ))}
         </nav>
@@ -54,25 +49,18 @@ const Layout = ({ children }) => {
                 <span className="sidebar-user-role">{user?.role}</span>
               </div>
             )}
+            <button className="sidebar-logout" onClick={handleLogout} title="Sign out">
+              🚪
+            </button>
           </div>
-          <button className="sidebar-logout" onClick={handleLogout} title="Sign out">
-            🚪
+          <button className="sidebar-toggle"
+            onClick={() => setCollapsed(c => !c)}>
+            {collapsed ? "→ Expand" : "← Collapse"}
           </button>
         </div>
-
-        <button
-          className="sidebar-toggle"
-          onClick={() => setCollapsed(c => !c)}
-          title={collapsed ? "Expand" : "Collapse"}
-        >
-          {collapsed ? "→" : "←"}
-        </button>
       </aside>
 
-      {/* ── Main ── */}
-      <main className="main-content">
-        {children}
-      </main>
+      <main className="main-content">{children}</main>
     </div>
   );
 };

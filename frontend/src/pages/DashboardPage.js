@@ -3,11 +3,15 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { useAuth } from "../context/AuthContext";
 import StudentService from "../services/studentService";
+import CourseService from "../services/courseService";
 
 const StatCard = ({ icon, label, value, color, onClick }) => (
-  <div className="stat-card" onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
-    <div className="stat-icon" style={{ background: color }}>{icon}</div>
-    <div className="stat-info">
+  <div className="stat-card stat-card--clickable" onClick={onClick}
+    style={{ "--stat-color": color, cursor: onClick ? "pointer" : "default" }}>
+    <div className="stat-icon-wrap" style={{ background: color + "22" }}>
+      {icon}
+    </div>
+    <div>
       <div className="stat-value">{value}</div>
       <div className="stat-label">{label}</div>
     </div>
@@ -17,12 +21,18 @@ const StatCard = ({ icon, label, value, color, onClick }) => (
 const DashboardPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ total: "…" });
+  const [stats, setStats] = useState({ students: "…", courses: "…" });
 
   useEffect(() => {
-    StudentService.getAll({ limit: 1 })
-      .then(d => setStats({ total: d.pagination.total }))
-      .catch(() => {});
+    Promise.all([
+      StudentService.getAll({ limit: 1 }),
+      CourseService.getAll({ limit: 1 }),
+    ]).then(([s, c]) => {
+      setStats({
+        students: s.pagination.total,
+        courses:  c.pagination.total,
+      });
+    }).catch(() => {});
   }, []);
 
   return (
@@ -36,15 +46,16 @@ const DashboardPage = () => {
       </div>
 
       <div className="stats-grid">
-        <StatCard icon="🎓" label="Total Students" value={stats.total}
-          color="rgba(79,110,247,0.12)" onClick={() => navigate("/students")} />
-        <StatCard icon="📚" label="Courses" value="—" color="rgba(15,196,161,0.12)" />
-        <StatCard icon="📊" label="Grades Entered" value="—" color="rgba(245,166,35,0.12)" />
-        <StatCard icon="📅" label="Attendance Rate" value="—" color="rgba(46,204,113,0.12)" />
+        <StatCard icon="🎓" label="Total Students" value={stats.students}
+          color="#6366F1" onClick={() => navigate("/students")} />
+        <StatCard icon="📚" label="Courses"        value={stats.courses}
+          color="#10B981" onClick={() => navigate("/courses")} />
+        <StatCard icon="📊" label="Grades Entered" value="—"  color="#F59E0B" />
+        <StatCard icon="📅" label="Attendance Rate" value="—" color="#0EA5E9" />
       </div>
 
       <div className="dashboard-hint">
-        <p>💡 Click <strong>Students</strong> in the sidebar to manage student records.</p>
+        💡 Click any card to navigate to that section.
       </div>
     </Layout>
   );
